@@ -1,59 +1,121 @@
 #!/usr/bin/python3
-''' Unittest Console '''
-import os
+"""Tests for the console"""
+
+
+import console
 import unittest
-import sys
-import pep8
-from console import HBNBCommand
-from unittest.mock import create_autospec
+import os
+import json
+import shutil
+import io
+from contextlib import redirect_stdout
+from models.engine.file_storage import FileStorage
 
 
 class TestConsole(unittest.TestCase):
-    ''' testing console '''
+    """Tests for the console"""
 
     @classmethod
     def setUp(self):
-        self.mock_stdin = create_autospec(sys.stdin)
-        self.mock_stdout = create_autospec(sys.stdout)
-
-    @classmethod
-    def tearDown(self):
         try:
             os.remove("file.json")
-        except:
+        except Exception:
             pass
 
-    def create(self, server=None):
-        return HBNBCommand(stdin=self.mock_stdin, stdout=self.mock_stdout)
-
-    def test_StyleCheck(self):
-        """ Tests pep8 style """
-        style = pep8.StyleGuide(quiet=True)
-        p = style.check_files(['./console.py'])
-        self.assertEqual(p.total_errors, 0, "fix pep8")
-
     def test_all(self):
-        ''' test all method '''
-        cli = self.create()
-        self.assertFalse(cli.onecmd("all"))
-        self.assertFalse(cli.onecmd("all User"))
-        self.mock_stdout.reset_mock()
+        """Test all command without args"""
+        self.maxDiff = None
+        shutil.copy("./tests/allfile.json", "./file.json")
+        teststore = FileStorage()
+        teststore.reload()
+        outbuffer = io.StringIO()
+        f = open("./tests/inalltest.txt", "r")
+        cmdp = console.HBNBCommand(stdin=f, stdout=outbuffer)
+        cmdp.use_rawinput = False
+        cmdp.prompt = ""
+        with redirect_stdout(outbuffer):
+            cmdp.cmdloop()
+        f.close()
+        g = open("./tests/inallresult.txt")
+        self.assertEqual(g.read(), outbuffer.getvalue())
+        g.close()
+        teststore.save()
+        self.assertEqual(json.load("./tests/allfile.json"),
+                         json.load("./file.json"))
+
+    def test_allargs(self):
+        """Test all command with args, such as all BaseModel"""
+        self.maxDiff = None
+        shutil.copy("./tests/allfile.json", "./file.json")
+        teststore = FileStorage()
+        "BaseModel.count()"
+        teststore.reload()
+        outbuffer = io.StringIO()
+        f = open("./tests/inallindtest.txt", "r")
+        cmdp = console.HBNBCommand(stdin=f, stdout=outbuffer)
+        cmdp.use_rawinput = False
+        cmdp.prompt = ""
+        with redirect_stdout(outbuffer):
+            cmdp.cmdloop()
+        f.close()
+        g = open("./tests/inallindresult.txt")
+        self.assertEqual(g.read(), outbuffer.getvalue())
+        g.close()
+        teststore.save()
+        self.assertEqual(json.load("./tests/allfile.json"),
+                         json.load("./file.json"))
 
     def test_show(self):
-        ''' test show method '''
-        cli = self.create()
-        self.assertFalse(cli.onecmd("show"))
-        self.assertFalse(cli.onecmd("show User"))
-        self.mock_stdout.reset_mock()
+        """Test good show commands"""
+        self.maxDiff = None
+        shutil.copy("./tests/allfile.json", "./file.json")
+        teststore = FileStorage()
+        teststore.reload()
+        outbuffer = io.StringIO()
+        f = open("./tests/inshowtest.txt", "r")
+        cmdp = console.HBNBCommand(stdin=f, stdout=outbuffer)
+        cmdp.use_rawinput = False
+        cmdp.prompt = ""
+        with redirect_stdout(outbuffer):
+            cmdp.cmdloop()
+        f.close()
+        g = open("./tests/inshowresult.txt")
+        self.assertEqual(g.read(), outbuffer.getvalue())
+        g.close()
+        teststore.save()
+        self.assertEqual(json.load("./tests/allfile.json"),
+                         json.load("./file.json"))
 
-    def test_help(self):
-        ''' test show method '''
-        cli = self.create()
-        self.assertFalse(cli.onecmd("help"))
-        self.assertFalse(cli.onecmd("help show"))
-        self.mock_stdout.reset_mock()
+    def test_showbad(self):
+        """Test bad show commands"""
+        self.maxDiff = None
+        shutil.copy("./tests/allfile.json", "./file.json")
+        teststore = FileStorage()
+        teststore.reload()
+        outbuffer = io.StringIO()
+        f = open("./tests/inshowbadtest.txt", "r")
+        cmdp = console.HBNBCommand(stdin=f, stdout=outbuffer)
+        cmdp.use_rawinput = False
+        cmdp.prompt = ""
+        with redirect_stdout(outbuffer):
+            cmdp.cmdloop()
+        f.close()
+        g = open("./tests/inshowbadresult.txt")
+        self.assertEqual(g.read(), outbuffer.getvalue())
+        g.close()
+        teststore.save()
+        self.assertEqual(json.load("./tests/allfile.json"),
+                         json.load("./file.json"))
 
-    def test_quit(self):
-        ''' test quit command '''
-        cli = self.create()
-        self.assertTrue(cli.onecmd("quit"))
+    def test_create(self):
+        """Tests well-behaved create commands. Assumes correct uuid output"""
+        f = open("./tests/increatetest.txt", "r")
+        cmdp = console.HBNBCommand(stdin=f, stdout=outbuffer)
+        cmdp.use_rawinput = False
+        cmdp.prompt = ""
+        with redirect_stdout(outbuffer):
+            cmdp.cmdloop()
+        f.close()
+        ids = outbuffer.getvalue()
+        ids = ids.split("\n")
+        objects = storage.all()
