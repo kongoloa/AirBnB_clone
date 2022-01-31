@@ -1,39 +1,74 @@
 #!/usr/bin/python3
-""" Contains the class TestConsoleDocs """
+"""Test console"""
 
-import console
-import inspect
-import pep8
 import unittest
-HBNBCommand = console.HBNBCommand
+from console import HBNBCommand
+from os import chdir, getcwd, path
+from pep8 import StyleGuide
+from shutil import rmtree
+from tempfile import mkdtemp
 
 
-class TestConsoleDocs(unittest.TestCase):
-    """Class for testing documentation of the console"""
-    def test_pep8_conformance_console(self):
-        """Test that console.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['console.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
+MODEL = path.join(getcwd(), 'console.py')
 
-    def test_pep8_conformance_test_console(self):
-        """Test that tests/test_console.py conforms to PEP8."""
-        pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_console.py'])
-        self.assertEqual(result.total_errors, 0,
-                         "Found code style errors (and warnings).")
 
-    def test_console_module_docstring(self):
-        """Test for the console.py module docstring"""
-        self.assertIsNot(console.__doc__, None,
-                         "console.py needs a docstring")
-        self.assertTrue(len(console.__doc__) >= 1,
-                        "console.py needs a docstring")
+class TestConsole(unittest.TestCase):
+    """Tests for console"""
+    def setUp(self):
+        """Create a temporary directory and enter it"""
+        chdir(mkdtemp())
 
-    def test_HBNBCommand_class_docstring(self):
-        """Test for the HBNBCommand class docstring"""
-        self.assertIsNot(HBNBCommand.__doc__, None,
-                         "HBNBCommand class needs a docstring")
-        self.assertTrue(len(HBNBCommand.__doc__) >= 1,
-                        "HBNBCommand class needs a docstring")
+    def tearDown(self):
+        """Remove temporary files and dir"""
+        rmtree(getcwd(), ignore_errors=True)
+
+    def test_emptyline(self):
+        """Test emptyline method"""
+        pass
+
+    def test_do_help(self):
+        """Test do_help method"""
+        pass
+
+    def test_do_quit(self):
+        """Test do_quit method"""
+        pass
+
+    def test_do_EOF(self):
+        """Test do_EOF method"""
+        pass
+
+    def test_do_all(self):
+        """Test do_all method"""
+        pass
+
+    def test_do_count(self):
+        """Test do_count method"""
+        pass
+
+    def test_do_create(self):
+        """Test do_create method"""
+        pass
+
+    def test_do_destroy(self):
+        """Test do_destroy method"""
+        pass
+
+    def test_do_show(self):
+        """Test do_show method"""
+        pass
+
+    def test_do_update(self):
+        """Test do_update method"""
+        pass
+
+    def test_precmd(self):
+        """Test precmd method"""
+        pass
+
+    def test_pep8(self):
+        """Test PEP8 conformance"""
+        style = StyleGuide(quiet=True)
+        check = style.check_files([MODEL])
+        self.assertEqual(check.total_errors, 0)
+
