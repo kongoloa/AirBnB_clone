@@ -10,3 +10,6 @@ footer {
     justify-content: center;
 }
 
+footer p {
+    margin-top: 23px;
+}
